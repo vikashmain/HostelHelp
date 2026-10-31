@@ -1,474 +1,103 @@
-# 🎉 OurEvents – Full Stack MERN Event Management Platform
+🏢 HostelHelp - AI-Powered Hostel Complaint Management System
 
-## 📌 Overview
+HostelHelp is a modern, MERN-stack web application designed to streamline maintenance and facility requests in university student hostels. By integrating Google's Gemini AI, the system automatically triages incoming complaints and uses semantic vector search to prevent duplicate tickets, saving hours of administrative overhead.
 
-**OurEvents** is a modern, full-stack Event Management  platform built using the **MERN Stack**. It enables users to discover events, book tickets securely using OTP verification, receive downloadable PDF tickets, and manage their bookings through an intuitive dashboard. Administrators can efficiently manage events, users, and bookings from a dedicated admin panel.
+✨ Key Features
 
-The project focuses on providing a real-world event booking experience with secure authentication, responsive design, email notifications, and production-ready architecture.
+🤖 AI-Driven Automation (Powered by Gemini)
 
----
+Automated Priority Triage: Every submitted complaint is silently analyzed by gemini-1.5-flash to determine its urgency, automatically assigning it a High, Medium, or Low priority level.
 
-# ✨ Features
+Semantic Deduplication: Before submission, text is converted into a 768-dimensional vector using gemini-embedding-001. The backend calculates Cosine Similarity to check active database records. If an 80%+ match is found, the user is prompted to upvote the existing ticket instead of creating a duplicate.
 
-## 👤 User Features
+👥 Resident Workflows
 
-* User Registration & Login
-* JWT Authentication
-* Email OTP Verification before Booking
-* Browse Upcoming Events
-* View Event Details
-* Book Event Tickets
-* Download Ticket as PDF
-* View Booking History
-* Cancel Booking
-* Responsive UI
-* Secure Protected Routes
+Public vs. Private Complaints: Students can choose to make their issues public for the hostel community to see, or keep them private between themselves and the incharge.
 
----
+Community Upvoting: Residents can upvote public complaints. The backend uses atomic MongoDB operators ($addToSet) to manage concurrent voting safely.
 
-## 🛠 Admin Features
+Personal Dashboard: Students can track the status of their own tickets (Pending, In Progress, Resolved) without seeing hidden administrative data (like AI priority scores).
 
-* Admin Authentication
-* Create New Events
-* Update Existing Events
-* Delete Events
-* View All Users
-* View All Bookings
-* Confirm or Reject Bookings
-* Manage Available Seats
-* Dashboard Statistics
+👑 Admin / Incharge Dashboard
 
----
+Smart Sorting: The admin view automatically sorts incoming tickets by AI Priority (High -> Medium -> Low), ensuring critical safety or facility emergencies are addressed first.
 
-## 🎫 Ticket System
+Status Management: Admins can transition tickets through their lifecycle, keeping residents updated in real-time.
 
-* Unique Booking ID
-* Automatic Seat Allocation
-* PDF Ticket Generation
-* Event Details Included
-* User Details Included
-* Downloadable Ticket
-* Confirmation Status Validation
+🛠️ Tech Stack
 
----
+Frontend: React.js, React Router, CSS/Tailwind (or your styling framework)
 
-## 📧 Email Features
+Backend: Node.js, Express.js
 
-* OTP Verification Email
-* Booking Confirmation Email
-* SMTP Integration (Brevo)
+Database: MongoDB & Mongoose
 
----
+AI Integration: Google Gemini API (gemini-1.5-flash, gemini-embedding-001)
 
-## 🔒 Security
+Authentication: JSON Web Tokens (JWT) & bcryptjs
 
-* JWT Authentication
-* Password Hashing using bcrypt
-* Protected Backend Routes
-* OTP Validation
-* Role-Based Authorization
-* Secure Environment Variables
+🚀 Getting Started
 
----
+Prerequisites
 
-# 🏗 Tech Stack
+Node.js (v16 or higher)
 
-## Frontend
+MongoDB (Local instance or MongoDB Atlas cluster)
 
-* React.js
-* React Router DOM
-* Axios
-* Tailwind CSS
-* React Icons
-* React PDF Renderer
+A free Google Gemini API Key from Google AI Studio
 
----
+Environment Variables
 
-## Backend
+Create a .env file in the root of your backend directory and add the following:
 
-* Node.js
-* Express.js
-* MongoDB
-* Mongoose
-* JWT
-* bcrypt
-* Nodemailer
-* Multer
-
----
-
-## Database
-
-MongoDB Atlas
-
----
-
-## Email Service
-
-Brevo SMTP
-
----
-
-## Authentication
-
-* JWT Tokens
-* Email OTP Verification
-
----
-
-# 📂 Project Structure
-
-```text
-Eventora
-│
-├── client
-│   ├── public
-│   ├── src
-│   │   ├── components
-│   │   ├── pages
-│   │   ├── layouts
-│   │   ├── context
-│   │   ├── services
-│   │   ├── utils
-│   │   └── assets
-│
-├── server
-│   ├── config
-│   ├── controllers
-│   ├── middleware
-│   ├── models
-│   ├── routes
-│   ├── utils
-│   ├── uploads
-│   └── server.js
-│
-├── package.json
-└── README.md
-```
-
----
-
-# 🗄 Database Schema
-
-## User
-
-```text
-Name
-Email
-Password
-Role
-Created At
-```
-
----
-
-## Event
-
-```text
-Title
-Description
-Category
-Location
-Date
-Time
-Image
-Ticket Price
-Total Seats
-Available Seats
-Created By
-```
-
----
-
-## Booking
-
-```text
-User
-Event
-Booking Status
-Seat Number
-OTP Verification
-Created At
-```
-
----
-
-# 🔄 Booking Workflow
-
-```text
-User Login
-      │
-      ▼
-Browse Events
-      │
-      ▼
-Select Event
-      │
-      ▼
-Request Booking
-      │
-      ▼
-Receive OTP
-      │
-      ▼
-Verify OTP
-      │
-      ▼
-Booking Created
-      │
-      ▼
-Admin Confirmation
-      │
-      ▼
-Seat Allocated
-      │
-      ▼
-PDF Ticket Generated
-      │
-      ▼
-Download Ticket
-```
-
----
-
-# 📄 PDF Ticket Generation
-
-Tickets are generated on the client side using **@react-pdf/renderer**.
-
-Each ticket contains:
-
-* Event Name
-* Event Date & Time
-* Venue
-* User Name
-* Seat Number
-* Booking Status
-* Booking ID
-
-Tickets are available for download only after the booking has been confirmed.
-
----
-
-# 🔑 Authentication Flow
-
-```text
-Register
-     │
-     ▼
-Login
-     │
-     ▼
-JWT Generated
-     │
-     ▼
-Protected Routes
-     │
-     ▼
-Authorized Access
-```
-
----
-
-# 📧 OTP Verification Flow
-
-```text
-Book Event
-      │
-      ▼
-Generate OTP
-      │
-      ▼
-Send Email
-      │
-      ▼
-User Enters OTP
-      │
-      ▼
-Backend Verification
-      │
-      ▼
-Booking Created
-```
-
----
-
-# 🚀 Installation
-
-## Clone Repository
-
-```bash
-git clone https://github.com/yourusername/eventora.git
-```
-
----
-
-## Backend
-
-```bash
-cd server
-
-npm install
-```
-
-Create a `.env` file:
-
-```env
 PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_super_secret_jwt_key
+GEMINI_API_KEY=your_google_gemini_api_key
 
-MONGO_URI=your_mongodb_connection
 
-JWT_SECRET=your_secret_key
+Installation
 
-EMAIL_HOST=smtp-relay.brevo.com
+Clone the repository:
 
-EMAIL_PORT=587
+git clone https://github.com/yourusername/HostelHelp.git
+cd HostelHelp
 
-EMAIL_USER=your_email
 
-EMAIL_PASS=your_password
-```
+Install Backend Dependencies:
 
-Run the backend:
-
-```bash
-npm run dev
-```
-
----
-
-## Frontend
-
-```bash
-cd client
-
+cd backend
 npm install
 
-npm run dev
-```
 
----
+Install Frontend Dependencies:
 
-# 🌐 Environment Variables
+cd ../frontend
+npm install
 
-```env
-PORT
 
-MONGO_URI
+Run the Application:
 
-JWT_SECRET
+Start the backend server: npm run dev (from the backend folder)
 
-EMAIL_HOST
+Start the React development server: npm run dev (from the frontend folder)
 
-EMAIL_PORT
+🧠 System Architecture Highlight: Vector Search
 
-EMAIL_USER
+To solve the issue of students reporting the same problem using different vocabulary (e.g., "Fan is broken" vs. "Ceiling ventilator making noise"), HostelHelp utilizes an internal vector search engine.
 
-EMAIL_PASS
-```
+User drafts a complaint.
 
----
+The Node.js server generates a 768-dimension mathematical embedding of the text.
 
-# 📦 Main Dependencies
+The server compares this array against all active complaints in MongoDB using a custom Cosine Similarity algorithm.
 
-### Frontend
+If similarity > 0.80 (80% semantic match), the UI interrupts the submission and reroutes the user to the existing ticket.
 
-```text
-react
-react-router-dom
-axios
-tailwindcss
-react-icons
-@react-pdf/renderer
-```
+🗺️ Roadmap (Upcoming Features)
 
----
+Hotspot Detection: Automatically clustering similar complaints by floor or wing to detect structural issues.
 
-### Backend
+Event-Driven Notifications: Real-time push notifications when an admin changes a ticket's status.
 
-```text
-express
-mongoose
-jsonwebtoken
-bcryptjs
-cors
-dotenv
-multer
-nodemailer
-```
-
----
-
-# 📸 Screens
-
-* Home Page
-* Event Listing
-* Event Details
-* Login
-* Register
-* OTP Verification
-* My Bookings
-* Admin Dashboard
-* PDF Ticket
-
----
-
-# 🎯 Future Enhancements
-
-* Razorpay Payment Integration
-* QR Code Based Ticket Validation
-* Live Seat Selection
-* Coupon & Discount System
-* Event Recommendations using AI
-* Push Notifications
-* Google Authentication
-* Event Analytics Dashboard
-* Refund Management
-* Calendar Integration
-* Multi-language Support
-* Dark Mode
-* Real-time Seat Availability using Socket.IO
-
----
-
-# 📈 Learning Outcomes
-
-This project demonstrates practical implementation of:
-
-* Full Stack MERN Development
-* RESTful API Design
-* JWT Authentication
-* OTP Verification
-* MongoDB Data Modeling
-* Email Integration
-* File Upload Handling
-* PDF Generation
-* Role-Based Access Control
-* CRUD Operations
-* State Management
-* Responsive UI Development
-
----
-
-# 🤝 Contributing
-
-Contributions are welcome.
-
-1. Fork the repository.
-2. Create a feature branch.
-3. Commit your changes.
-4. Push the branch.
-5. Open a Pull Request.
-
----
-
-# 📄 License
-
-This project is licensed under the MIT License.
-
----
-
-# 👨‍💻 Author
-
-**Vikash Mani Tripathi**
-
-If you found this project useful, consider giving it a ⭐ on GitHub.
+Service Level Agreements (SLAs): Automated analytics tracking how often High-priority tickets are resolved on time.
