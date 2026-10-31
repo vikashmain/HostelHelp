@@ -1,69 +1,47 @@
-import React, { createContext, useState, useEffect } from "react";
-import api from "../utils/axios";
+import { createContext, useContext, useEffect, useState } from 'react'
+import { authApi } from '../api'
 
-export const AuthContext = createContext();
+const AuthContext = createContext({})
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+// Keeps track of who is logged in (user) and their row in the profiles table
+// (profile: name, room, role). Any component can read them with useAuth().
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const userInfo = localStorage.getItem("userInfo");
-    if (userInfo) {
-      setUser(JSON.parse(userInfo));
-    }
-    setLoading(false);
-  }, []);
+    if (!localStorage.getItem('hosteldesk_token')) { setLoading(false); return }
+    authApi.me().then(({ user }) => setUser(user))
+      .catch(() => localStorage.removeItem('hosteldesk_token')).finally(() => setLoading(false))
+  }, [])
 
-  const login = async (email, password) => {
+  async function authenticate(path, body) {
     try {
-      const { data } = await api.post("/auth/login", { email, password });
-      setUser(data);
-      localStorage.setItem("userInfo", JSON.stringify(data));
-      localStorage.setItem("token", data.token);
-      return data;
-    } catch (error) {
-      if (error.response?.data?.needsVerification) throw error.response.data;
-      throw error.response?.data?.message || "Login failed";
-    }
-  };
+      const { user, token } = await path(body)
+      localStorage.setItem('hosteldesk_token', token)
+      setUser(user)
+      return null
+    } catch (error) { return error }
+  }
 
-  const register = async (name, email, password) => {
-    try {
-      const { data } = await api.post("/auth/register", {
-        name,
-        email,
-        password,
-      });
-      return data; // Returns { message, email }
-    } catch (error) {
-      throw error.response?.data?.message || "Registration failed";
-    }
-  };
+  async function signUp({ email, password, name, roomNumber }) {
+    return authenticate(authApi.signUp, { email, password, name, roomNumber })
+  }
 
-  const verifyOTP = async (email, otp) => {
-    try {
-      const { data } = await api.post("/auth/verify-otp", { email, otp });
-      setUser(data);
-      localStorage.setItem("userInfo", JSON.stringify(data));
-      localStorage.setItem("token", data.token);
-      return data;
-    } catch (error) {
-      throw error.response?.data?.message || "OTP verification failed";
-    }
-  };
+  async function signIn({ email, password }) {
+    return authenticate(authApi.signIn, { email, password })
+  }
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("userInfo");
-    localStorage.removeItem("token");
-  };
+  async function signOut() {
+    localStorage.removeItem('hosteldesk_token')
+    setUser(null)
+  }
 
   return (
-    <AuthContext.Provider
-      value={{ user, login, register, verifyOTP, logout, loading }}
-    >
-      {!loading && children}
+    <AuthContext.Provider value={{ user, loading, signUp, signIn, signOut }}>
+      {children}
     </AuthContext.Provider>
-  );
-};
+  )
+}
+
+export const useAuth = () => useContext(AuthContext)

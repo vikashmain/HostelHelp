@@ -1,36 +1,45 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import EventDetail from './pages/EventDetail';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import UserDashboard from './pages/UserDashboard';
-import AdminDashboard from './pages/AdminDashboard';
-// import PaymentSuccess from './pages/PaymentSuccess';
-// import PaymentFailed from './pages/PaymentFailed';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { useAuth } from './context/AuthContext'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
+import NewComplaint from './pages/NewComplaint'
+import MyComplaints from './pages/MyComplaints'
+import AdminComplaints from './pages/AdminComplaints'
+import Announcements from './pages/Announcements'
+import Community from './pages/Community'
+import Navbar from './components/Navbar'
 
-function App() {
-    return (
-        <Router>
-            <div className="min-h-screen bg-gray-50 flex flex-col">
-                <Navbar />
-                <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/events/:id" element={<EventDetail />} />
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/register" element={<Register />} />
-                        <Route path="/dashboard" element={<UserDashboard />} />
-                        <Route path="/admin" element={<AdminDashboard />} />
-                        {/* <Route path="/payment-success" element={<PaymentSuccess />} />
-                        <Route path="/payment-failed" element={<PaymentFailed />} /> */}
-                        <Route path="*" element={<h1 className="text-3xl font-bold text-center mt-20">404 - Page Not Found</h1>} />
-                    </Routes>
-                </main>
-            </div>
-        </Router>
-    );
+function PrivateRoute({ children, role }) {
+  const { user, loading } = useAuth()
+  if (loading) return <div className="page-loading"><div className="spinner" /></div>
+  if (!user) return <Navigate to="/login" replace />
+  if (role && user.role !== role) return <Navigate to="/" replace />
+  return children
 }
 
-export default App;
+function AppShell({ children }) {
+  return <div className="app-shell"><Navbar /><main className="main-content">{children}</main></div>
+}
+
+function Home() {
+  const { user } = useAuth()
+  return <Navigate to={user?.role === 'incharge' ? '/complaints' : '/my-complaints'} replace />
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+        <Route path="/new-complaint" element={<PrivateRoute role="resident"><AppShell><NewComplaint /></AppShell></PrivateRoute>} />
+        <Route path="/my-complaints" element={<PrivateRoute role="resident"><AppShell><MyComplaints /></AppShell></PrivateRoute>} />
+        <Route path="/complaints" element={<PrivateRoute role="incharge"><AppShell><AdminComplaints /></AppShell></PrivateRoute>} />
+        <Route path="/announcements" element={<PrivateRoute><AppShell><Announcements /></AppShell></PrivateRoute>} />
+        <Route path="/community" element={<PrivateRoute><AppShell><Community /></AppShell></PrivateRoute>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  )
+}
