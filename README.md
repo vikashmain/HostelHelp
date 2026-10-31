@@ -60,7 +60,7 @@ Installation
 
 Clone the repository:
 
-git clone https://github.com/yourusername/HostelHelp.git
+git clone https://github.com/vikashmain/HostelHelp.git
 cd HostelHelp
 
 
